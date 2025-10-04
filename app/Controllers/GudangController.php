@@ -16,12 +16,39 @@ class GudangController extends BaseController
             return redirect()->to('/login')->with('error', 'Akses ditolak!');
         }
 
-        return view('gudang/dashboard');
+        $model = new \App\Models\BahanBakuModel();
+        $items = $model->findAll();
+
+        foreach ($items as &$row) {
+            $computed = 'Tersedia';
+
+            if (isset($row['jumlah']) && (int)$row['jumlah'] <= 0) {
+                $computed = 'Habis';
+            } else {
+
+                if (!empty($row['tanggal_kadaluarsa'])) {
+                    $tgl = strtotime($row['tanggal_kadaluarsa']);
+                    $now = time();
+                    $diffDays = floor(($tgl - $now) / (60 * 60 * 24));
+
+                    if ($diffDays <= 0) {
+                        $computed = 'Kadaluarsa';
+                    } elseif ($diffDays <= 7) {
+                        $computed = 'Segera Kadaluarsa';
+                    }
+                }
+            }
+
+            $row['computed_status'] = $computed;
+        }
+
+        return view('gudang/dashboard', [
+            'items' => $items
+        ]);
     }
 
     public function create()
     {
-        // only gudang role allowed (filter already checks but double-check)
         if (!session()->get('isLoggedIn') || session()->get('user_role') !== 'gudang') {
             return redirect()->to('/login')->with('error', 'Akses ditolak!');
         }
