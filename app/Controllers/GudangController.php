@@ -92,4 +92,69 @@ class GudangController extends BaseController
 
         return redirect()->to('/gudang/dashboard')->with('success', 'Bahan baku berhasil ditambahkan.');
     }
+    public function updateStockForm($id = null)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_role') !== 'gudang') {
+            return redirect()->to('/login')->with('error', 'Akses ditolak!');
+        }
+
+        $model = new \App\Models\BahanBakuModel();
+        $item = $model->find($id);
+
+        if (!$item) {
+            return redirect()->to('/gudang/dashboard')->with('error', 'Data bahan baku tidak ditemukan.');
+        }
+
+        return view('gudang/update_stok', ['item' => $item]);
+    }
+
+    public function updateStock($id = null)
+    {
+        if (! $this->request->is('post')) {
+            return redirect()->to('/gudang/dashboard');
+        }
+
+        if (!session()->get('isLoggedIn') || session()->get('user_role') !== 'gudang') {
+            return redirect()->to('/login')->with('error', 'Akses ditolak!');
+        }
+
+        $model = new \App\Models\BahanBakuModel();
+        $item = $model->find($id);
+
+        if (!$item) {
+            return redirect()->to('/gudang/dashboard')->with('error', 'Data bahan baku tidak ditemukan.');
+        }
+
+        $operasi = $this->request->getPost('operasi');
+        $jumlahRaw = $this->request->getPost('jumlah');
+
+        if (! in_array($operasi, ['tambah', 'kurang'], true)) {
+            return redirect()->back()->with('error', 'Operasi tidak valid.')->withInput();
+        }
+
+        if ($jumlahRaw === null || $jumlahRaw === '' || ! is_numeric($jumlahRaw)) {
+            return redirect()->back()->with('error', 'Jumlah harus berupa angka.')->withInput();
+        }
+
+        $jumlah = (int) $jumlahRaw;
+        if ($jumlah < 0) {
+            return redirect()->back()->with('error', 'Jumlah tidak boleh negatif.')->withInput();
+        }
+
+        $stokSaatIni = (int) ($item['jumlah'] ?? 0);
+        $stokBaru = $operasi === 'tambah' ? ($stokSaatIni + $jumlah) : ($stokSaatIni - $jumlah);
+
+        if ($stokBaru < 0) {
+            return redirect()->back()->with('error', 'Stok akhir tidak boleh kurang dari 0.')->withInput();
+        }
+
+        $status = $stokBaru <= 0 ? 'Habis' : 'Tersedia';
+
+        $model->update($id, [
+            'jumlah' => $stokBaru,
+            'status' => $status,
+        ]);
+
+        return redirect()->to('/gudang/dashboard')->with('success', 'Stok berhasil diperbarui.');
+    }
 }

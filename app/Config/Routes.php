@@ -12,8 +12,12 @@ $routes->GET('login', 'AuthController::index');
 $routes->POST('login', 'AuthController::login');
 $routes->GET('logout', 'AuthController::logout');
 
-$routes->get('/gudang/dashboard', 'GudangController::index', ['filter' => 'auth:gudang']);
+$routes->group('gudang', ['filter' => 'auth:gudang'], static function($routes) {
+	$routes->get('dashboard', 'GudangController::index');
+	$routes->get('bahan/create', 'GudangController::create');
+	$routes->post('bahan/store', 'GudangController::store');
+	$routes->get('bahan/(:num)/update-stock', 'GudangController::updateStockForm/$1');
+	$routes->post('bahan/(:num)/update-stock', 'GudangController::updateStock/$1');
+});
+
 $routes->get('/dapur/dashboard', 'DapurController::index', ['filter' => 'auth:dapur']);
-// Gudang: Bahan Baku
-$routes->get('/gudang/bahan/create', 'GudangController::create', ['filter' => 'auth:gudang']);
-$routes->post('/gudang/bahan/store', 'GudangController::store', ['filter' => 'auth:gudang']);

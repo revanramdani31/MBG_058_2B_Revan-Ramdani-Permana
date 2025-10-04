@@ -58,7 +58,13 @@
                                                 <span class="badge bg-success"><?= esc($s) ?></span>
                                             <?php endif; ?>
                                         </td>
-                                        <td> delete update</td>
+                                        <td>
+                                            <a href="<?= site_url('gudang/bahan/'.$row['id'].'/update-stock') ?>" class="btn btn-sm btn-warning">Update Stok</a>
+                                            <form method="post" action="<?= site_url('gudang/bahan/'.$row['id'].'/delete') ?>" style="display:inline" onsubmit="return confirm('Yakin ingin menghapus bahan <?= esc($row['nama']) ?>?')">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
