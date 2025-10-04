@@ -6,14 +6,16 @@ use App\Controllers\BaseController;
 
 class DapurController extends BaseController
 {
-    public function index()
+    public function index() 
     {
-        $data = [
-            'user_name' => session()->get('user_name'),
-            'user_role' => session()->get('user_role'),
-            'user_email' => session()->get('user_email')
-        ];
-        
-        return view('dapur/dashboard', $data);
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login');
+        }
+
+        if (session()->get('user_role') !== 'dapur') {
+            return redirect()->to('/login')->with('error', 'Akses ditolak!');
+        }
+
+        return view('dapur/dashboard');
     }
 }

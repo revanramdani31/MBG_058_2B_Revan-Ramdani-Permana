@@ -1,29 +1,16 @@
 <?php
 
-
 use CodeIgniter\Router\RouteCollection;
 
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'AuthController::index');
+$routes->GET('/', 'AuthController::index');
 
+// Auth Routes
+$routes->GET('login', 'AuthController::index');
+$routes->POST('login', 'AuthController::login');
+$routes->GET('logout', 'AuthController::logout');
 
-$routes->get('/login', 'AuthController::index');
-$routes->post('/auth/login', 'AuthController::login');
-$routes->get('/logout', 'AuthController::logout');
-
-$routes->group('gudang', ['filter' => 'role:gudang'], static function ($routes) {
-    $routes->get('dashboard', 'GudangController::index');
-});
-
-$routes->group('dapur', ['filter' => 'role:dapur'], static function ($routes) {
-    $routes->get('dashboard', 'DapurController::index');
-    
-  
-});
-
-
-$routes->group('', ['filter' => 'auth'], static function ($routes) {
-    $routes->get('/dashboard', 'Home::index');
-});
+$routes->get('/gudang/dashboard', 'GudangController::index', ['filter' => 'auth:gudang']);
+$routes->get('/dapur/dashboard', 'DapurController::index', ['filter' => 'auth:dapur']);
