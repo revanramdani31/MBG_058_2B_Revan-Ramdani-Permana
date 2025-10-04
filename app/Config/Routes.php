@@ -14,3 +14,6 @@ $routes->GET('logout', 'AuthController::logout');
 
 $routes->get('/gudang/dashboard', 'GudangController::index', ['filter' => 'auth:gudang']);
 $routes->get('/dapur/dashboard', 'DapurController::index', ['filter' => 'auth:dapur']);
+// Gudang: Bahan Baku
+$routes->get('/gudang/bahan/create', 'GudangController::create', ['filter' => 'auth:gudang']);
+$routes->post('/gudang/bahan/store', 'GudangController::store', ['filter' => 'auth:gudang']);
