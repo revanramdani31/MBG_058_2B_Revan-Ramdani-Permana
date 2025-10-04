@@ -18,6 +18,8 @@ $routes->group('gudang', ['filter' => 'auth:gudang'], static function($routes) {
 	$routes->post('bahan/store', 'GudangController::store');
 	$routes->get('bahan/(:num)/update-stock', 'GudangController::updateStockForm/$1');
 	$routes->post('bahan/(:num)/update-stock', 'GudangController::updateStock/$1');
+	$routes->get('bahan/(:num)/delete', 'GudangController::confirmDelete/$1');
+	$routes->post('bahan/(:num)/delete', 'GudangController::delete/$1');
 });
 
 $routes->get('/dapur/dashboard', 'DapurController::index', ['filter' => 'auth:dapur']);

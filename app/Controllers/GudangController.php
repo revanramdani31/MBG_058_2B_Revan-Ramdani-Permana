@@ -6,6 +6,19 @@ use App\Controllers\BaseController;
 
 class GudangController extends BaseController
 {
+    private function computeStatus(array $row): string
+    {
+        $jumlah = isset($row['jumlah']) ? (int)$row['jumlah'] : 0;
+        if ($jumlah <= 0) return 'Habis';
+        if (!empty($row['tanggal_kadaluarsa'])) {
+            $tgl = strtotime($row['tanggal_kadaluarsa']);
+            $now = time();
+            $diffDays = floor(($tgl - $now) / (60 * 60 * 24));
+            if ($diffDays <= 0) return 'Kadaluarsa';
+            if ($diffDays <= 7) return 'Segera Kadaluarsa';
+        }
+        return 'Tersedia';
+    }
     public function index() 
     {
         if (!session()->get('isLoggedIn')) {
@@ -20,26 +33,7 @@ class GudangController extends BaseController
         $items = $model->findAll();
 
         foreach ($items as &$row) {
-            $computed = 'Tersedia';
-
-            if (isset($row['jumlah']) && (int)$row['jumlah'] <= 0) {
-                $computed = 'Habis';
-            } else {
-
-                if (!empty($row['tanggal_kadaluarsa'])) {
-                    $tgl = strtotime($row['tanggal_kadaluarsa']);
-                    $now = time();
-                    $diffDays = floor(($tgl - $now) / (60 * 60 * 24));
-
-                    if ($diffDays <= 0) {
-                        $computed = 'Kadaluarsa';
-                    } elseif ($diffDays <= 7) {
-                        $computed = 'Segera Kadaluarsa';
-                    }
-                }
-            }
-
-            $row['computed_status'] = $computed;
+            $row['computed_status'] = $this->computeStatus($row);
         }
 
         return view('gudang/dashboard', [
@@ -156,5 +150,65 @@ class GudangController extends BaseController
         ]);
 
         return redirect()->to('/gudang/dashboard')->with('success', 'Stok berhasil diperbarui.');
+    }
+
+    public function confirmDelete($id = null)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_role') !== 'gudang') {
+            return redirect()->to('/login')->with('error', 'Akses ditolak!');
+        }
+
+        $model = new \App\Models\BahanBakuModel();
+        $item = $model->find($id);
+        if (!$item) {
+            return redirect()->to('/gudang/dashboard')->with('error', 'Data bahan baku tidak ditemukan.');
+        }
+
+        $item['computed_status'] = $this->computeStatus($item);
+        return view('gudang/confirm_delete', ['item' => $item]);
+    }
+
+
+    public function delete($id = null)
+    {
+        if (! $this->request->is('post')) {
+            return redirect()->to('/gudang/dashboard');
+        }
+
+        if (!session()->get('isLoggedIn') || session()->get('user_role') !== 'gudang') {
+            return redirect()->to('/login')->with('error', 'Akses ditolak!');
+        }
+
+        $model = new \App\Models\BahanBakuModel();
+        $item = $model->find($id);
+        $isAjax = $this->request->isAJAX() || str_contains(strtolower($this->request->getHeaderLine('Accept')), 'application/json');
+
+        if (!$item) {
+            $msg = 'Data bahan baku tidak ditemukan.';
+            return $isAjax
+                ? $this->response->setJSON(['success' => false, 'message' => $msg])
+                : redirect()->to('/gudang/dashboard')->with('error', $msg);
+        }
+
+        $status = $this->computeStatus($item);
+        if (strcasecmp($status, 'Kadaluarsa') !== 0) {
+            $msg = 'Bahan baku tidak dapat dihapus karena status bukan Kadaluarsa.';
+            return $isAjax
+                ? $this->response->setJSON(['success' => false, 'message' => $msg])
+                : redirect()->to('/gudang/dashboard')->with('error', $msg);
+        }
+
+        try {
+            $model->delete($id);
+        } catch (\Throwable $e) {
+            $msg = 'Tidak dapat menghapus bahan baku karena masih terhubung dengan data permintaan.';
+            return $isAjax
+                ? $this->response->setJSON(['success' => false, 'message' => $msg])
+                : redirect()->to('/gudang/dashboard')->with('error', $msg);
+        }
+
+        return $isAjax
+            ? $this->response->setJSON(['success' => true, 'message' => 'Bahan baku berhasil dihapus.', 'id' => (int)$id])
+            : redirect()->to('/gudang/dashboard')->with('success', 'Bahan baku berhasil dihapus.');
     }
 }
