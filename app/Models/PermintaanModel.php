@@ -13,7 +13,6 @@ class PermintaanModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id','permohonan_id','tgl_masak','menu_makan','jumlah_porsi','status','created_at','delted_at'
+         'pemohon_id', 'tgl_masak', 'menu_makan', 'jumlah_porsi', 'status', 'created_at', 'delted_at'
     ];
-
 }

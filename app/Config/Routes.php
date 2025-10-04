@@ -22,4 +22,8 @@ $routes->group('gudang', ['filter' => 'auth:gudang'], static function($routes) {
 	$routes->post('bahan/(:num)/delete', 'GudangController::delete/$1');
 });
 
-$routes->get('/dapur/dashboard', 'DapurController::index', ['filter' => 'auth:dapur']);
+$routes->group('dapur', ['filter' => 'auth:dapur'], static function($routes) {
+    $routes->get('dashboard', 'DapurController::index');
+    $routes->get('permintaan/create', 'DapurController::createPermintaan');
+    $routes->post('permintaan/store', 'DapurController::storePermintaan');
+});

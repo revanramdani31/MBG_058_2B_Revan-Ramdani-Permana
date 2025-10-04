@@ -12,8 +12,8 @@ class PermintaanDetailModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
+    
     protected $allowedFields    = [
-        'id','permintaan_id','bahan_id','jumlah_diminta'
+        'id', 'permintaan_id', 'bahan_id', 'jumlah_diminta'
     ];
-
 }

@@ -20,7 +20,7 @@
                     <dd class="col-sm-9"><?= esc($item['kategori']) ?></dd>
 
                     <dt class="col-sm-3">Jumlah</dt>
-                    <dd class="col-sm-9"><?= esc($item['jumlah']) ?> <?= esc($item['satuan']) ?></dd>
+                    <dd class="col-sm-9"><?= esc($item['jumlah']) ?>     <?= esc($item['satuan']) ?></dd>
 
                     <dt class="col-sm-3">Tgl Masuk</dt>
                     <dd class="col-sm-9"><?= esc($item['tanggal_masuk']) ?></dd>
@@ -52,21 +52,21 @@
             <a href="<?= site_url('gudang/dashboard') ?>" class="btn btn-secondary">Kembali</a>
         <?php else: ?>
             <div id="notif" class="my-2" style="display:none"></div>
-            <form id="deleteForm" method="post" action="<?= site_url('gudang/bahan/'.$item['id'].'/delete') ?>">
+            <form id="deleteForm" method="post" action="<?= site_url('gudang/bahan/' . $item['id'] . '/delete') ?>">
                 <?= csrf_field() ?>
                 <button type="submit" class="btn btn-danger">Hapus</button>
                 <a href="<?= site_url('gudang/dashboard') ?>" class="btn btn-secondary">Batal</a>
             </form>
             <script>
-                (function(){
+                (function () {
                     const form = document.getElementById('deleteForm');
                     const notif = document.getElementById('notif');
-                    function showAlert(message, type){
+                    function showAlert(message, type) {
                         notif.className = 'alert alert-' + type + ' my-2';
                         notif.textContent = message;
                         notif.style.display = 'block';
                     }
-                    form.addEventListener('submit', function(e){
+                    form.addEventListener('submit', function (e) {
                         e.preventDefault();
                         const ok = confirm('Hapus bahan <?= addslashes($item['nama']) ?>? Tindakan ini tidak dapat dibatalkan.');
                         if (!ok) return;
@@ -77,16 +77,16 @@
                             headers: { 'Accept': 'application/json' },
                             body: formData
                         })
-                        .then(res => res.json().catch(() => ({ success:false, message:'Gagal memproses respons server.' })))
-                        .then(data => {
-                            if (data.success) {
-                                showAlert(data.message || 'Bahan baku berhasil dihapus.', 'success');
-                                setTimeout(() => { window.location.href = '<?= site_url('gudang/dashboard') ?>'; }, 1000);
-                            } else {
-                                showAlert(data.message || 'Bahan baku tidak dapat dihapus.', 'danger');
-                            }
-                        })
-                        .catch(() => showAlert('Terjadi kesalahan jaringan. Coba lagi.', 'danger'));
+                            .then(res => res.json().catch(() => ({ success: false, message: 'Gagal memproses respons server.' })))
+                            .then(data => {
+                                if (data.success) {
+                                    showAlert(data.message || 'Bahan baku berhasil dihapus.', 'success');
+                                    setTimeout(() => { window.location.href = '<?= site_url('gudang/dashboard') ?>'; }, 1000);
+                                } else {
+                                    showAlert(data.message || 'Bahan baku tidak dapat dihapus.', 'danger');
+                                }
+                            })
+                            .catch(() => showAlert('Terjadi kesalahan jaringan. Coba lagi.', 'danger'));
                     });
                 })();
             </script>

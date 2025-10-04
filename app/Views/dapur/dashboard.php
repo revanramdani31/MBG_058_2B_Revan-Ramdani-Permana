@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+<?= $this->include('partials/header', ['title' => 'Dashboard Gudang']) ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Gudang</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-</head>
-
-<body class="container mt-4">
+<div class="container mt-4">
 
     <?php if (session()->getFlashdata('error')): ?>
         <div class="alert alert-danger">
@@ -19,12 +8,34 @@
         </div>
     <?php endif; ?>
 
-    <h1 class="mb-3">Selamat Datang di Dashboard Dapur</h1>
-    <p>Anda berhasil login sebagai <strong>role Dapur</strong>.</p>
-    <p>User: <span class="text-primary"><?= session()->get('user_name') ?></span></p>
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success">
+            <?= esc(session()->getFlashdata('success')) ?>
+        </div>
+    <?php endif; ?>
 
-    <a href="/logout" class="btn btn-danger">Logout</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4">Selamat Datang, <?= esc(session()->get('user_name')) ?></h1>
+            <div class="text-muted">Role: <?= esc(session()->get('user_role')) ?></div>
+        </div>
+    </div>
 
-</body>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Dashboard Dapur</h3>
+        <div>
+            <a href="/dapur/permintaan/create" class="btn btn-sm btn-primary">Buat Permintaan Bahan</a>
+        </div>
+    </div>
 
-</html>
+    <div class="card">
+        <div class="card-body">
+            <p>Anda berhasil login sebagai <strong><?= esc(session()->get('user_role')) ?></strong>.</p>
+            <p>Gunakan tombol di atas untuk membuat permintaan bahan baru atau keluar dari akun Anda.</p>
+        </div>
+    </div>
+
+</div>
+
+
+<?= $this->include('partials/footer') ?>
